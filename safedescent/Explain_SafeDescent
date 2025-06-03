@@ -1,1 +1,81 @@
+# Safe Descent During Communication Loss
 
+## The Need for Safe Descent
+
+**Random Drone Movement**  
+- Leads to unstable flight paths.  
+- Control becomes unpredictable during mission server failures.
+
+**Inaccurate Sensor Data**  
+- OptiTrack data may become unreliable.  
+- Faulty position tracking can result in erratic drone behavior.
+
+**Risk of Damage**  
+- Increases collision risks due to incorrect sensor interpretation.  
+- Higher chances of structural and hardware damage.
+
+**Communication Failure**  
+- Drone moves randomly without a fallback strategy.  
+- Makes real-time control infeasible and unsafe.
+
+---
+
+## Motivation
+
+- Inspired by **On-Off control strategies** to ensure a safe transition to open-loop control during communication loss.  
+- Emphasis on **robust fallback mechanisms** to guarantee a **safe and autonomous landing**.  
+- Designed to operate independently of mission server commands during communication disruptions.
+
+---
+
+## Implementation Highlights
+
+- Seamless transition to **open-loop descent** when tracking is lost.  
+- Uses a **smooth and continuous sigmoidal throttle decay**.  
+- **Attitude stabilization** is actively maintained throughout descent.  
+- Communication loss is detected using **persistent state memory**.
+
+---
+
+## Command Inputs
+
+- Roll and Pitch Commands  
+- Communication Signal  
+- Supplied Thrust  
+
+---
+
+## Role of Persistent Variables
+
+- Enable **real-time tracking** of control signals.  
+- Detect **sudden loss of communication** or unreliable tracking.  
+- Handle false or noisy sensory data **gracefully**.  
+- Ensure **controlled descent** even in the absence of new inputs.
+
+---
+
+## Controlling Parameters for Smooth Descent
+
+- **Max/Min Acceleration**: Limits throttle change rate to ensure safe transitions.  
+- **Max/Min Velocity**: Constrains drone speed for stable, smooth motion.  
+- **Saturation Limits**: Prevents exceeding hardware or safety boundaries.  
+- **Continuous Sigmoidal Throttle**: Ensures smooth, controlled descent and soft landing.
+
+---
+
+## Case 4: Sigmoidal Descent Logic
+
+During the `E_Landing` state of the FSM, the controller's throttle is ignored and a safe sigmoidal throttle curve is initiated:
+
+```matlab
+% Case 4: Safe Descent During Communication Loss
+enable = 1;
+throttle_ref = 0;
+
+if throttle_vel > 0
+    max_throttle_vel = takeoff_lim(1);
+    max_throttle_accel = takeoff_lim(2);
+else
+    max_throttle_vel = land_lim(1);
+    max_throttle_accel = land_lim(2);
+end
