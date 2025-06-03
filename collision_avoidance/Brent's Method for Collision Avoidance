@@ -1,1 +1,55 @@
+## 4.2.2 Throttle Optimization Formulation
+
+### 🚁 Problem Overview
+The UAV's collision-free height regulation is framed as a **bounded nonlinear optimization problem**. Using **Brent’s Method**, the throttle `u` is dynamically optimized to ensure accurate height tracking and obstacle avoidance, especially near hazards.
+
+---
+
+### 🧠 Cost Function
+
+The optimization goal is:
+
+\[
+\min_u J(u) = w_h e_h^2 + w_u \Delta u^2 + w_o \sigma(d) u^2 + w_v [\dot{u}]^+
+\]
+
+**Subject to:**  
+\[
+u_{\min} \leq u \leq u_{\max}
+\]
+
+Where:  
+- \( e_h = z(t) - z_{\text{ref}} \): Height tracking error  
+- \( \Delta u = u - u_{\text{nom}} \): Throttle deviation  
+- \( [\dot{u}]^+ = \max(0, \dot{u}) \): Penalizes abrupt throttle increase  
+- \( \sigma(d) = \begin{cases} 100, & d < 0.3\text{ m} \\ 0, & \text{otherwise} \end{cases} \): Obstacle penalty  
+- Bounds: \( u_{\min}, u_{\max} \in [12.5, 13.6] \)
+
+---
+
+### ✅ Why Brent’s Method?
+
+- **Continuity**: The cost function is continuous, even with piecewise and non-differentiable terms.
+- **Unimodal Nature**: Dominated by quadratic terms, leading to a well-defined minimum.
+- **Derivative-Free**: Suitable for non-smooth problems where gradients are unavailable.
+- **Bounded Domain**: Works efficiently within defined throttle limits.
+
+---
+
+## 4.3 Brent’s Method for Optimization
+
+**Brent’s Method** combines the reliability of **Golden-Section Search (GSS)** with the speed of **Successive Parabolic Interpolation (SPI)**. It adaptively chooses between the two based on the local behavior of the cost function.
+
+This hybrid approach ensures fast, reliable convergence — making it ideal for real-time throttle optimization in embedded UAV systems.
+
+---
+
+### 🔧 Key Techniques
+
+- **SPI**: Fits a parabola through three points to estimate the minimum. Offers fast convergence near smooth regions.
+- **GSS**: Uses the golden ratio to narrow down the minimum in uncertain or non-smooth regions.
+
+---
+
+Brent’s Method enables real-time, safe, and efficient throttle control for UAVs, ensuring stable height tracking and effective obstacle avoidance in bounded and non-smooth environments.
 
