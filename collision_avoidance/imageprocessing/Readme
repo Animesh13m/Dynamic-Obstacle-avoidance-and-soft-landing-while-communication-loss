@@ -1,0 +1,5 @@
+To enhance onboard perception for collision avoidance and safe landing, an RGB-D front-facing
+camera is integrated using the Video3D Initialize and Video3D Capture blocks from the
+QUARC Multimedia library. This configuration provides synchronized RGB images and depth
+data, enabling real-time spatial awareness for obstacle detection, surface mapping, and precise
+landing execution during autonomous UAV operations.
