@@ -5,6 +5,7 @@
 In autonomous drone operations, loss of communication with the mission server can lead to serious instability. When this happens:
 
 - The drone may **move randomly** due to outdated or missing commands.
+as depected in **descent_risk.png**
 - **Sensor data (e.g., from OptiTrack)** may become inaccurate or frozen.
 - This poses a high **risk of collision or damage**, especially during indoor or tight-space flights.
 
