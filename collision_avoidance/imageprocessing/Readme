@@ -3,3 +3,6 @@ camera is integrated using the Video3D Initialize and Video3D Capture blocks fro
 QUARC Multimedia library. This configuration provides synchronized RGB images and depth
 data, enabling real-time spatial awareness for obstacle detection, surface mapping, and precise
 landing execution during autonomous UAV operations.
+depth_video.png
+
+Initialize and capture should syncronuse with each other to further analyse and process image data.
