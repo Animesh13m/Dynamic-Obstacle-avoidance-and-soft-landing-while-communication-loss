@@ -47,14 +47,14 @@ The system handles communication loss with the following key features:
 Persistent variables are used to retain important values between control cycles:
 
 - Help in **tracking the last known control input** (e.g., throttle).
-- Detect if a **communication loss has occurred or is ongoing**.
+- Detect if a **communication loss has occurred or is ongoing**. **communication_signal.png**
 - Allow the system to respond **gracefully** to noise or brief tracking glitches.
-- Enable **autonomous fallback behavior** without depending on external signals.
+- Enable **autonomous fallback behavior** without depending on external signals. **Controlled_throttle.m**
 
 ---
 
 ## 🧮 Controlling Parameters for Smooth Descent
-
+**Throttle_control_para.m**
 To ensure a stable and safe landing, the following constraints are applied:
 
 - **Max/Min Acceleration**: Controls the rate of throttle change to avoid sudden drops.
@@ -66,7 +66,7 @@ To ensure a stable and safe landing, the following constraints are applied:
 
 ## 🧾 Summary: What Happens During Communication Loss
 
-1. Communication failure is **detected using persistent memory**.
+1. Communication failure is **detected using persistent memory**. **persistenceVar.m**
 2. The system transitions to **Case 4 of the Finite State Machine (FSM)**.
 3. Controller throttle output is **ignored**.
 4. A **sigmoidal descent throttle profile** is activated.
