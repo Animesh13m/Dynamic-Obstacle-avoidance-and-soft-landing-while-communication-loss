@@ -1,81 +1,78 @@
-# Safe Descent During Communication Loss
+# 🛬 Safe Descent During Communication Loss
 
-## The Need for Safe Descent
+## 🧩 The Need for Safe Descent
 
-**Random Drone Movement**  
-- Leads to unstable flight paths.  
-- Control becomes unpredictable during mission server failures.
+In autonomous drone operations, loss of communication with the mission server can lead to serious instability. When this happens:
 
-**Inaccurate Sensor Data**  
-- OptiTrack data may become unreliable.  
-- Faulty position tracking can result in erratic drone behavior.
+- The drone may **move randomly** due to outdated or missing commands.
+- **Sensor data (e.g., from OptiTrack)** may become inaccurate or frozen.
+- This poses a high **risk of collision or damage**, especially during indoor or tight-space flights.
 
-**Risk of Damage**  
-- Increases collision risks due to incorrect sensor interpretation.  
-- Higher chances of structural and hardware damage.
-
-**Communication Failure**  
-- Drone moves randomly without a fallback strategy.  
-- Makes real-time control infeasible and unsafe.
+A fallback mechanism is essential to ensure a **safe, controlled landing**, even in the absence of updated external inputs.
 
 ---
 
-## Motivation
+## 🎯 Motivation
 
-- Inspired by **On-Off control strategies** to ensure a safe transition to open-loop control during communication loss.  
-- Emphasis on **robust fallback mechanisms** to guarantee a **safe and autonomous landing**.  
-- Designed to operate independently of mission server commands during communication disruptions.
+This strategy is inspired by **On-Off control systems**, which emphasize reliable and quick switching in uncertain conditions.
 
----
-
-## Implementation Highlights
-
-- Seamless transition to **open-loop descent** when tracking is lost.  
-- Uses a **smooth and continuous sigmoidal throttle decay**.  
-- **Attitude stabilization** is actively maintained throughout descent.  
-- Communication loss is detected using **persistent state memory**.
+- The goal is to **enable safe landing** without requiring continuous communication.
+- Focus is placed on **robust fallback mechanisms** that operate independently of the mission server.
+- This ensures the drone transitions into a **safe descent mode** automatically when connection is lost.
 
 ---
 
-## Command Inputs
+## ⚙️ Implementation Highlights
+
+The system handles communication loss with the following key features:
+
+- **Automatic transition** from trajectory tracking to an open-loop descent mode.
+- Use of a **smooth sigmoidal throttle curve** to gradually reduce thrust.
+- Maintenance of **attitude stabilization** (yaw, pitch, and roll) during the descent.
+- **Persistent state monitoring** helps detect communication drops and prevent false triggers.
+
+---
+
+## 📥 Input Commands Monitored
 
 - Roll and Pitch Commands  
-- Communication Signal  
-- Supplied Thrust  
+- Communication Health Signal  
+- Current Supplied Thrust  
 
 ---
 
-## Role of Persistent Variables
+## 🧠 Role of Persistent Variables
 
-- Enable **real-time tracking** of control signals.  
-- Detect **sudden loss of communication** or unreliable tracking.  
-- Handle false or noisy sensory data **gracefully**.  
-- Ensure **controlled descent** even in the absence of new inputs.
+Persistent variables are used to retain important values between control cycles:
 
----
-
-## Controlling Parameters for Smooth Descent
-
-- **Max/Min Acceleration**: Limits throttle change rate to ensure safe transitions.  
-- **Max/Min Velocity**: Constrains drone speed for stable, smooth motion.  
-- **Saturation Limits**: Prevents exceeding hardware or safety boundaries.  
-- **Continuous Sigmoidal Throttle**: Ensures smooth, controlled descent and soft landing.
+- Help in **tracking the last known control input** (e.g., throttle).
+- Detect if a **communication loss has occurred or is ongoing**.
+- Allow the system to respond **gracefully** to noise or brief tracking glitches.
+- Enable **autonomous fallback behavior** without depending on external signals.
 
 ---
 
-## Case 4: Sigmoidal Descent Logic
+## 🧮 Controlling Parameters for Smooth Descent
 
-During the `E_Landing` state of the FSM, the controller's throttle is ignored and a safe sigmoidal throttle curve is initiated:
+To ensure a stable and safe landing, the following constraints are applied:
 
-```matlab
-% Case 4: Safe Descent During Communication Loss
-enable = 1;
-throttle_ref = 0;
+- **Max/Min Acceleration**: Controls the rate of throttle change to avoid sudden drops.
+- **Max/Min Velocity**: Keeps the descent speed within safe physical limits.
+- **Saturation Limits**: Prevents throttle values from exceeding hardware boundaries.
+- **Sigmoidal Throttle Profile**: Ensures smooth, progressive reduction of thrust.
 
-if throttle_vel > 0
-    max_throttle_vel = takeoff_lim(1);
-    max_throttle_accel = takeoff_lim(2);
-else
-    max_throttle_vel = land_lim(1);
-    max_throttle_accel = land_lim(2);
-end
+---
+
+## 🧾 Summary: What Happens During Communication Loss
+
+1. Communication failure is **detected using persistent memory**.
+2. The system transitions to **Case 4 of the Finite State Machine (FSM)**.
+3. Controller throttle output is **ignored**.
+4. A **sigmoidal descent throttle profile** is activated.
+5. The drone **gently descends** while maintaining attitude stability.
+6. Upon reaching the ground, **motors shut down or idle** safely.
+
+---
+
+> ✅ This strategy ensures a reliable, damage-minimizing fallback mechanism to handle unexpected communication loss during drone flight operations.
+
