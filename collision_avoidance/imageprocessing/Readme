@@ -1,8 +1,87 @@
-To enhance onboard perception for collision avoidance and safe landing, an RGB-D front-facing
-camera is integrated using the Video3D Initialize and Video3D Capture blocks from the
-QUARC Multimedia library. This configuration provides synchronized RGB images and depth
-data, enabling real-time spatial awareness for obstacle detection, surface mapping, and precise
-landing execution during autonomous UAV operations.
-depth_video.png
+---
 
-Initialize and capture should syncronuse with each other to further analyse and process image data.
+## Onboard Perception System for Collision Avoidance and Safe Landing
+
+To enhance onboard perception during autonomous UAV operations, an **RGB-D front-facing camera** is integrated using the `Video3D Initialize` and `Video3D Capture` blocks from the **QUARC Multimedia library**.
+
+This setup provides **synchronized RGB images and depth data**, enabling:
+
+- **Real-time obstacle detection**
+- **Surface mapping for landing zone assessment**
+- **Accurate spatial localization**
+
+The blocks are configured as follows:
+
+- `Video3D Initialize`: Initializes the RGB-D camera, configuring its resolution and stream settings.
+- `Video3D Capture`: Captures RGB and depth frames in real-time. It must be executed **after successful initialization** to ensure frame synchronization.
+
+> ⚠️ **Note:** Proper synchronization between Initialize and Capture blocks is critical. Ensure that the `Video3D Capture` block waits for the `Initialize` block to complete before attempting frame acquisition. This avoids missed or corrupted frames and ensures consistent data availability for downstream image processing.
+
+The captured **depth frames** are fed into the segmentation and smoothing pipeline (see `blockaverage_Segmentation.m` and `slidingAverageDepth.m`) to detect proximity threats and assist in **safe landing** through precise terrain analysis.
+
+### Example
+
+![Depth Video Snapshot](depth_video.png)
+
+> A sample frame (`depth_video.png`) illustrates the raw depth data used in the block-average segmentation and smoothing routines described above.
+
+---
+
+
+
+
+# Depth Image Processing for UAV Obstacle Detection
+
+## Overview
+
+This project focuses on **processing and smoothing depth image data** to identify the **minimum distance of obstacles** within a UAV's field of view, particularly in the **central region** of a depth frame. It includes segmentation, smoothing, and safety assessment routines designed to support **collision avoidance mechanisms**.
+
+---
+
+## Files
+
+### `blockaverage_Segmentation.m`
+- Segments the central third of a 480x640 depth image into an **8×10 block grid** (80 blocks).
+- Computes the **average depth** in each block.
+- Identifies the **minimum average depth** value to assess the **closest obstacle** in the central region.
+
+### `slidingAverageDepth.m`
+- Implements a **sliding average filter** using a buffer of six values.
+- Smooths incoming depth measurements to reduce noise.
+- Provides a **stable depth estimate** for downstream processing.
+
+### `warning.m`
+
+Contains two functions:
+
+- **`detect_min_distance_central(depthMatrix)`**  
+  Extracts the **minimum block-average depth** value from the central region of a 480×640 depth matrix.
+
+- **`compute_reward(minDepth)`**  
+  Maps the minimum depth to a **binary safety signal**:
+  - `1`: Danger (too close)
+  - `0`: Safe
+
+### `depth_video.png`
+- A **snapshot** from a depth video stream.
+- Used for testing or demonstrating segmentation and detection logic.
+
+---
+
+## Application
+
+These scripts are components of a **UAV safety or perception module**, where real-time depth data from an RGB-D camera is used to:
+
+- **Detect nearby obstacles**
+- **Smooth measurements for reliable readings**
+- **Evaluate proximity risks**
+- **Trigger safety responses or avoidance maneuvers**
+
+---
+
+## Notes
+
+- Input depth images must be of size **480×640**.
+- Depth values of **0** are treated as invalid and ignored in calculations.
+- The analysis is focused on the **central region**, aligning with the UAV's primary flight direction.
+- The reward function provides a **binary risk classification** for simple safety decision-making.
