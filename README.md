@@ -34,5 +34,4 @@ This repository contains the code, Simulink models, and supporting documentation
 - Brent’s Optimization Algorithm (GSS + SPI hybrid)
 - Control Theory & Real-Time Systems
 
-## Folder Structure
 
